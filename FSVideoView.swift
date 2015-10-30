@@ -143,7 +143,7 @@ public class FSVideoView:UIView{
         
         let renderQueue = dispatch_queue_create("com.FSVideoView.renderQueue", DISPATCH_QUEUE_SERIAL)
         let dispatch_source = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, renderQueue)
-        
+        dispatch_source_set_timer(dispatch_source, DISPATCH_TIME_NOW, deltaPerFrame, 0)
         // Prepare resources to reduce alloc in realtime
         let drawingWidth    = glView.drawableWidth
         let drawingHeight   = glView.drawableHeight
@@ -210,7 +210,7 @@ public class FSVideoView:UIView{
             
             })
         
-        dispatch_source_set_timer(dispatch_source, DISPATCH_TIME_NOW, deltaPerFrame, 0)
+
         dispatch_source_set_event_handler(dispatch_source, renderBlock)
         dispatch_resume(dispatch_source)
 
