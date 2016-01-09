@@ -1,13 +1,17 @@
-# FSVideoView - UIElement support easy video playback.
-Use an video as a background is more commonly
-on many nowadays app.There are different solutions,
+# FSVideoView - UI element support easy video playback.
+Use a video as a background is more commonly
+on many app nowadays .There are many different solutions,
 some may use gif and some may use video.For video,
 some choose to play directly through AVPlayerlayer,
 but we chose GLKView because it's more flexible,
 both on functionality and performance. It cost
 a little bit more cpu than AVPlayer but it's fun
-to have many interesting effect by code
+to have many interesting effect by code.
+
+**We now support loop. You can add the videos to play, we will loop them as default.
+
 **We don't support sound. ( May be in the coming future we see a need)**
+
 
 Also we allow you to add simple filter to the
 video at real time.Because the video is finally
