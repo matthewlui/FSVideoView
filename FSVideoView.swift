@@ -42,7 +42,7 @@ public class FSVideoView:UIView{
     private var completion  : ((Bool)->())?
     /// Loop the videos from input sources
     private var loop        = false
-    private var pauseFlag   = true
+    private var pauseFlag   = false
     private var videoUrls   = [NSURL]()
     private var fps         : Int64 = 25
     
@@ -74,6 +74,9 @@ public class FSVideoView:UIView{
             if videoUrls.count <= 0 {
                 return
             }
+            if pauseFlag {
+                return
+            }
             if index <= videoUrls.count - 1{
                 do {
                     try _playVideo(videoUrls[index], completion: { (f) -> () in
@@ -81,7 +84,7 @@ public class FSVideoView:UIView{
                             playUrlAtIndex(index + 1)
                         }
                     })
-                }catch let err{
+                }catch _ {
                     print("FSVideoBackgroundView: Error occur when try to play file at index:\(index)")
                 }
             }else{
@@ -114,12 +117,23 @@ public class FSVideoView:UIView{
         pauseFlag = true
     }
     
+    public func stop(){
+        completion = nil
+        dispatch_source = nil
+        dispatch_block_cancel(renderBlock)
+        reader.cancelReading()
+        reader = nil
+    }
+    
+    private var dispatch_source : dispatch_source_t!
+    private var reader : AVAssetReader!
+    private var renderBlock : dispatch_block_t!
     internal func _playVideo(url:NSURL,completion:((Bool)->())? = nil) throws{
         //load an asset to play from url
         let asset       = AVAsset(URL: url)
         // loading up the first track from an video file
         let track       = asset.tracksWithMediaType(AVMediaTypeVideo)[0]
-        let reader:AVAssetReader
+        
         do{
             reader      = try AVAssetReader(asset: asset)
         }catch let err{
@@ -149,15 +163,16 @@ public class FSVideoView:UIView{
         let drawingHeight   = glView.drawableHeight
         let drawingBounds   = CGRect(x: 0, y: 0, width: drawingWidth, height: drawingHeight)
         let viewAR          = drawingBounds.width / drawingBounds.height
-        let renderBlock = dispatch_block_create(DISPATCH_BLOCK_BARRIER, { [unowned self, glView = self.glView] () -> Void in
+        renderBlock = dispatch_block_create(DISPATCH_BLOCK_BARRIER, { [unowned self, glView = self.glView] () -> Void in
             // Return flase only when output buffer is nil because an absense
             // of imageBuffer may due to the current frame is empty.
-            if reader.canAddOutput(output){
-                reader.addOutput(output)
+            if self.reader.canAddOutput(output){
+                self.reader.addOutput(output)
             }
+            
             guard let buffer = output.copyNextSampleBuffer() else{
                 dispatch_source_cancel(dispatch_source)
-                if reader.status == .Completed{
+                if self.reader.status == .Completed{
                     completion?(true)
                 }else{
                     completion?(false)
@@ -213,7 +228,8 @@ public class FSVideoView:UIView{
 
         dispatch_source_set_event_handler(dispatch_source, renderBlock)
         dispatch_resume(dispatch_source)
-
+        
     }
+
 }
 
