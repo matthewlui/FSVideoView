@@ -1,4 +1,7 @@
 # FSVideoView - UI element support easy video playback.
+
+## Updated: I plan to not keep it as a file. I gave up. Will make it a Cocoapods and Carthage support framework
+
 Use a video as a background is more commonly
 on many app nowadays .There are many different solutions,
 some may use gif and some may use video.For video,
